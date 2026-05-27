@@ -79,3 +79,4 @@ nginx/ssl/**
 # Others
 docs/
 .agents/
+mvn_out.txt
