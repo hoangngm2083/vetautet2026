@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class HiController {
     private final HiAppService hiAppService;
+
     @GetMapping
     public String sayHello() {
         return hiAppService.sayHi("Hoang");

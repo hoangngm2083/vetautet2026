@@ -75,3 +75,7 @@ ec2.push.sh
 deploy.sh
 nginx/ssl
 nginx/ssl/**
+
+# Others
+docs/
+.agents/

@@ -1,4 +1,4 @@
-package ngm.hoang.persistence.repository;
+package ngm.hoang.persistence.repository.adapter;
 
 import ngm.hoang.service.HiDomainService;
 import org.springframework.stereotype.Repository;

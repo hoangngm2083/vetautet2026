@@ -1,0 +1,4 @@
+app:
+  security:
+    bcrypt:
+      cost: 12
