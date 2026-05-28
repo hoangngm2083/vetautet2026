@@ -112,6 +112,12 @@
                     <environmentVariables>
                         <DOCKER_API_VERSION>1.44</DOCKER_API_VERSION>
                     </environmentVariables>
+                    <systemPropertyVariables>
+                        <!-- Java 25: allow Byte Buddy to run in experimental mode so Mockito inline mocking works -->
+                        <net.bytebuddy.experimental>true</net.bytebuddy.experimental>
+                        <!-- Reduce noisy warnings on newer JDKs when Mockito self-attaches -->
+                        <jdk.instrument.traceUsage>false</jdk.instrument.traceUsage>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>

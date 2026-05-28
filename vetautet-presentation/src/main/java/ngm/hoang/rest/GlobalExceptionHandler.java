@@ -1,5 +1,7 @@
 package ngm.hoang.rest;
 
+import ngm.hoang.exception.AlreadyExistsDomainException;
+import ngm.hoang.exception.DomainException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -41,6 +43,33 @@ public class GlobalExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
         problemDetail.setTitle("Bad Request");
         problemDetail.setType(URI.create("about:blank"));
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
+    }
+
+    /**
+     * Xử lý Domain Exception (business rule / invariant).
+     */
+    @ExceptionHandler(AlreadyExistsDomainException.class)
+    public ProblemDetail handleAlreadyExistsDomainException(AlreadyExistsDomainException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problemDetail.setTitle("Conflict");
+        problemDetail.setType(URI.create("about:blank"));
+        problemDetail.setProperty("model", ex.getModel());
+        problemDetail.setProperty("field", ex.getField());
+        problemDetail.setProperty("value", ex.getValue());
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
+    }
+
+    @ExceptionHandler(DomainException.class)
+    public ProblemDetail handleDomainException(DomainException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problemDetail.setTitle("Bad Request");
+        problemDetail.setType(URI.create("about:blank"));
+        problemDetail.setProperty("model", ex.getModel());
+        problemDetail.setProperty("field", ex.getField());
+        problemDetail.setProperty("value", ex.getValue());
         problemDetail.setProperty("timestamp", Instant.now());
         return problemDetail;
     }

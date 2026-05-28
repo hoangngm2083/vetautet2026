@@ -7,6 +7,17 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Admin extends BaseModel {
 
+    public static Admin create(String username, String passwordHash){
+        // validate
+
+
+        return Admin.builder()
+                .id(BaseModel.genId())
+                .username(username)
+                .passwordHash(passwordHash)
+                .build();
+    }
+
     private String username;
     private String passwordHash;
 

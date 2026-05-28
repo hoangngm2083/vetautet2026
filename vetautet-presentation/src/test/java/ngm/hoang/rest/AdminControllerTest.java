@@ -1,10 +1,12 @@
 package ngm.hoang.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ngm.hoang.exception.AlreadyExistsDomainException;
 import ngm.hoang.model.Admin;
 import ngm.hoang.rest.request.CreateAdminRequest;
-import ngm.hoang.usecase.AdminUseCase;
-import ngm.hoang.usecase.command.CreateAdminCommand;
+import ngm.hoang.service.AdminAppService;
+import ngm.hoang.cqrs.admin.command.CreateAdminCommand;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -35,10 +37,11 @@ class AdminControllerTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
-    private AdminUseCase useCase;
+    private AdminAppService appService;
 
     @Test
-    void create_ShouldReturnCreatedAdmin_WhenRequestIsValid() throws Exception {
+    @DisplayName("create: validRequest -> 201 + id + username")
+    void create_validRequest_created() throws Exception {
         CreateAdminRequest request = new CreateAdminRequest("adminUser", "securePassword123");
         UUID adminId = UUID.randomUUID();
         Admin mockAdmin = Admin.builder()
@@ -47,7 +50,7 @@ class AdminControllerTest {
                 .passwordHash("hashedPassword")
                 .build();
 
-        when(useCase.create(any(CreateAdminCommand.class))).thenReturn(mockAdmin);
+        when(appService.create(any(CreateAdminCommand.class))).thenReturn(mockAdmin);
 
         mockMvc.perform(post("/admin")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -58,7 +61,8 @@ class AdminControllerTest {
     }
 
     @Test
-    void create_ShouldReturnBadRequest_WhenUsernameIsBlank() throws Exception {
+    @DisplayName("create: blankUsername -> 400 ProblemDetail.invalidParams.username")
+    void create_blankUsername_badRequest() throws Exception {
         // Arrange
         CreateAdminRequest request = new CreateAdminRequest("", "securePassword123");
 
@@ -75,7 +79,8 @@ class AdminControllerTest {
     }
 
     @Test
-    void create_ShouldReturnBadRequest_WhenPasswordIsBlank() throws Exception {
+    @DisplayName("create: blankPassword -> 400 ProblemDetail.invalidParams.password")
+    void create_blankPassword_badRequest() throws Exception {
         // Arrange
         CreateAdminRequest request = new CreateAdminRequest("adminUser", "");
 
@@ -89,22 +94,22 @@ class AdminControllerTest {
     }
 
     @Test
-    void create_ShouldReturnBadRequest_WhenUseCaseThrowsIllegalArgumentException() throws Exception {
-        // Arrange: Giả lập trường hợp dữ liệu hợp lệ về mặt cú pháp nhưng vi phạm logic (ví dụ: trùng username)
+    @DisplayName("create: duplicateUsername -> 409 ProblemDetail (DomainException)")
+    void create_duplicateUsername_conflict() throws Exception {
         CreateAdminRequest request = new CreateAdminRequest("duplicateAdmin", "securePassword123");
 
-        // Khi tầng usecase bị gọi, nó sẽ ném ra IllegalArgumentException giống như logic thực tế của bạn
-        when(useCase.create(any(CreateAdminCommand.class)))
-                .thenThrow(new IllegalArgumentException("Username 'duplicateAdmin' already exists"));
+        when(appService.create(any(CreateAdminCommand.class)))
+                .thenThrow(new AlreadyExistsDomainException(Admin.class, "username", "duplicateAdmin"));
 
-        // Act & Assert
         mockMvc.perform(post("/admin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                // Kiểm tra xem hàm handleIllegalArgumentException trong handler có hoạt động không
-                .andExpect(jsonPath("$.title").value("Bad Request"))
-                .andExpect(jsonPath("$.detail").value("Username 'duplicateAdmin' already exists"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.title").value("Conflict"))
+                .andExpect(jsonPath("$.detail").value("Already exists in system!"))
+                .andExpect(jsonPath("$.model").value("Admin"))
+                .andExpect(jsonPath("$.field").value("username"))
+                .andExpect(jsonPath("$.value").value("duplicateAdmin"))
                 .andExpect(jsonPath("$.timestamp").exists());
     }
 }

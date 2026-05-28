@@ -15,12 +15,17 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AdminRepositoryImpl implements AdminRepository {
     private final AdminMapper mapper;
-    private final AdminJpaRepository jpaAdapter;
+    private final AdminJpaRepository jpaRepository;
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return jpaRepository.existsByUsername(username);
+    }
 
     @Override
     public Admin save(Admin admin) {
         AdminEntity entity = mapper.toEntity(admin);
-        return mapper.toModel(jpaAdapter.save(entity));
+        return mapper.toModel(jpaRepository.save(entity));
     }
 
     @Override

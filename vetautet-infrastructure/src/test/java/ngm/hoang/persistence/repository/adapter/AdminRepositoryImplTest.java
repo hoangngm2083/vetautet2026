@@ -1,30 +1,27 @@
 package ngm.hoang.persistence.repository.adapter;
 
 import ngm.hoang.model.Admin;
-import ngm.hoang.persistence.JpaTestConfig;
 import ngm.hoang.persistence.entity.AdminEntity;
 import ngm.hoang.persistence.repository.jpa.AdminJpaRepository;
 import ngm.hoang.utils.mapper.AdminMapperImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DataJpaTest
-@ContextConfiguration(classes = JpaTestConfig.class)
 @Import({AdminRepositoryImpl.class, AdminMapperImpl.class})
-class AdminRepositoryImplTest {
+class AdminRepositoryImplTest extends BaseRepositoryTest {
     @Autowired
     private AdminRepositoryImpl adminRepository;
     @Autowired
     private AdminJpaRepository jpaRepository;
+
     private Admin adminModel;
 
     @BeforeEach
@@ -37,7 +34,8 @@ class AdminRepositoryImplTest {
     }
 
     @Test
-    void save_ShouldPersistAdminAndReturnModel() {
+    @DisplayName("save: validAdmin -> persist and return same model")
+    void save_validAdmin_sameAdmin() {
         // Arrange
         // (setUp provides adminModel)
 
