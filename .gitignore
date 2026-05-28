@@ -79,4 +79,5 @@ nginx/ssl/**
 # Others
 docs/
 .agents/
+.cursor/
 mvn_out.txt

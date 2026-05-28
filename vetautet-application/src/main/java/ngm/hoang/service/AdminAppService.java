@@ -1,9 +1,13 @@
 package ngm.hoang.service;
 
-import ngm.hoang.model.Admin;
-
 import ngm.hoang.cqrs.admin.command.CreateAdminCommand;
+import ngm.hoang.cqrs.admin.query.GetAdminByIdQuery;
+import ngm.hoang.dto.AdminDTO;
+
+import java.util.UUID;
 
 public interface AdminAppService {
-    Admin create(CreateAdminCommand command);
+    UUID create(CreateAdminCommand command);
+
+    AdminDTO get(GetAdminByIdQuery query);
 }

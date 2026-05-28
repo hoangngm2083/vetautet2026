@@ -12,6 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -29,20 +31,17 @@ class CreateAdminCommandHandlerTest {
     private CreateAdminCommandHandler handler;
 
     @Test
-    @DisplayName("handle: validCommand -> savedAdmin")
-    void handle_validCommand_savedAdmin() {
+    @DisplayName("handle: validCommand -> returns saved admin id")
+    void handle_validCommand_returnsId() {
         CreateAdminCommand command = new CreateAdminCommand("adminUser", "rawPassword123");
 
         when(adminRepository.existsByUsername("adminUser")).thenReturn(false);
         when(hasher.hash("rawPassword123")).thenReturn("hashedPassword123");
         when(adminRepository.save(any(Admin.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Admin result = handler.handle(command);
+        UUID result = handler.handle(command);
 
         assertNotNull(result);
-        assertNotNull(result.getId());
-        assertEquals("adminUser", result.getUsername());
-        assertEquals("hashedPassword123", result.getPasswordHash());
     }
 
     @Test
@@ -86,4 +85,3 @@ class CreateAdminCommandHandlerTest {
         assertThrows(NullPointerException.class, () -> handler.handle(null));
     }
 }
-

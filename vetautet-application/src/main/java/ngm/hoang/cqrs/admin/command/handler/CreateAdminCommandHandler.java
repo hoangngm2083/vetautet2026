@@ -8,13 +8,15 @@ import ngm.hoang.provider.Hasher;
 import ngm.hoang.repository.AdminRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class CreateAdminCommandHandler {
     private final AdminRepository adminRepository;
     private final Hasher hasher;
 
-    public Admin handle(CreateAdminCommand command){
+    public UUID handle(CreateAdminCommand command){
         // Check already existed?
         this.validateUniqueUsername(command.username());
 
@@ -24,8 +26,7 @@ public class CreateAdminCommandHandler {
         // Create
         Admin model = this.createAdmin(command.username(), passwordHashed);
 
-        // save and return
-        return adminRepository.save(model);
+        return adminRepository.save(model).getId();
     }
 
     private void validateUniqueUsername(String username){
